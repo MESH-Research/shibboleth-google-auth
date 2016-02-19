@@ -1,0 +1,44 @@
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+      parent="authn.abstract, authn/conditions">
+
+    <!-- Display the google.vm velocity template. The relying party context
+         as well as profile request context and authentication context are 
+         available to the view. More importantly the Google OAuth2 client ID
+         is available to the view since the Google Javascript requires it.
+         The client ID is that configured in the GoogleIntegration 
+         bean configuration. -->
+    <view-state id="DisplayGoogleSignInPage" view="google">
+        <on-render>
+            <evaluate expression="environment" result="viewScope.environment" />
+            <evaluate expression="opensamlProfileRequestContext" result="viewScope.profileRequestContext" />
+            <evaluate expression="opensamlProfileRequestContext.getSubcontext(T(net.shibboleth.idp.authn.context.AuthenticationContext))" result="viewScope.authenticationContext" />
+            <evaluate expression="authenticationContext.getSubcontext(T(net.shibboleth.idp.ui.context.RelyingPartyUIContext))" result="viewScope.rpUIContext" />
+            <evaluate expression="GoogleIntegration.getOauth2ClientId()" result="viewScope.clientId" />
+        </on-render>
+
+        <transition on="proceed" to="ExtractGoogleIdTokenFromFormRequest" />
+    </view-state>
+    
+    <!-- Extract the signed Google ID token that has been sent by POST
+         to the IdP. -->
+    <action-state id="ExtractGoogleIdTokenFromFormRequest">
+        <evaluate expression="ExtractGoogleIdTokenFromFormRequest" />
+        <evaluate expression="'proceed'" />
+
+        <transition to="ValidateGoogleIdToken" />
+    </action-state>
+
+    <!-- Validate that the Google Id token is properly signed and 
+         targeted at the correct Google OAuth2 client ID. -->
+    <action-state id="ValidateGoogleIdToken" >
+        <evaluate expression="ValidateGoogleIdToken" />
+        <evaluate expression="'proceed'" />
+
+        <transition on="proceed" to="proceed" />
+    </action-state>
+    
+    <bean-import resource="google-authn-beans.xml" />
+
+</flow>

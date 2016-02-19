@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+                           
+       default-init-method="initialize"
+       default-destroy-method="destroy">
+
+    <!-- Configure the Google integration details here. In particular configure
+         the Google OAuth2 client ID. The secret is not necessary since the
+         Google Javascript code manages the actual Google authentication flow.
+         The Javascript code returns the signed Google Id token and then it 
+         is sent by POST to the IdP for verification. -->
+    <bean id="GoogleIntegration"
+        class="org.mla.cbox.shibboleth.idp.authn.impl.GoogleIntegration"
+        p:oauth2ClientId="611700789407-k7vkt7qh1qu7pr4e1rs6n83vqpmp5986.apps.googleusercontent.com"
+        />
+       
+    <!-- The Google integration to use is configured with this bean. The 
+         integration is attached to the GoogleContext that is attached to
+         the authentication context used for the flow. -->
+    <bean id="ExtractGoogleIdTokenFromFormRequest"
+        class="org.mla.cbox.shibboleth.idp.authn.impl.ExtractGoogleIdTokenFromFormRequest"
+        p:googleIntegration-ref="GoogleIntegration"
+        p:httpServletRequest-ref="shibboleth.HttpServletRequest"
+        />
+
+    <!-- The validation step obtains the Google integration details, mainly
+         the Google OAuth2 client ID, from the GoogleIntegration attached
+         to the GoogleContext attached to the authentication context. -->
+    <bean id="ValidateGoogleIdToken"
+        class="org.mla.cbox.shibboleth.idp.authn.impl.ValidateGoogleIdToken"
+        />
+        
+</beans>
