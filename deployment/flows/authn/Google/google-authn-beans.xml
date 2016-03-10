@@ -27,6 +27,7 @@
          the authentication context used for the flow. -->
     <bean id="ExtractGoogleIdTokenFromFormRequest"
         class="org.mla.cbox.shibboleth.idp.authn.impl.ExtractGoogleIdTokenFromFormRequest"
+        scope="prototype"
         p:googleIntegration-ref="GoogleIntegration"
         p:httpServletRequest-ref="shibboleth.HttpServletRequest"
         />
@@ -36,6 +37,7 @@
          to the GoogleContext attached to the authentication context. -->
     <bean id="ValidateGoogleIdToken"
         class="org.mla.cbox.shibboleth.idp.authn.impl.ValidateGoogleIdToken"
+        scope="prototype"
         />
         
 </beans>

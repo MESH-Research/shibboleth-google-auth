@@ -14,6 +14,7 @@
 
     <bean id="GoogleSubjectCanonicalization"
         class="org.mla.cbox.shibboleth.idp.authn.impl.GoogleIdTokenSubjectCanonicalization"
+        scope="prototype"
         />
 
 </beans>
