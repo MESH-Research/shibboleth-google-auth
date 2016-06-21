@@ -16,35 +16,30 @@
     <head>
         <meta charset="utf-8">
         <title>Google Authentication</title>
-        <meta name="google-signin-client_id" content="$clientId"> 
     </head>
     <body>
-      <div id="my-signin2"></div>
       <script>
-        function onSuccess(googleUser) {
-          console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
-          var id_token = googleUser.getAuthResponse().id_token;
-          var id_input = document.getElementById("google_id_token");
-          id_input.value = id_token;
-          document.id_token_form.submit();
+        function initAuth() {
+          gapi.load('auth2', signIn);
         }
-        function onFailure(error) {
-          console.log(error);
-        }
-        function renderButton() {
-          gapi.signin2.render('my-signin2', {
-            'scope': 'profile email',
-            'width': 200,
-            'height': 50,
-            'longtitle': true,
-            'theme': 'dark',
-            'onsuccess': onSuccess,
-            'onfailure': onFailure
-          });
+        function signIn() {
+            gapi.auth2.init({
+                'client_id' : '$clientId',
+                'scope' : 'profile email'
+                }).then(function (authInstance) {
+                    authInstance.signIn().then(function() {
+                        var googleUser = authInstance.currentUser.get();
+                        console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+                        var id_token = googleUser.getAuthResponse().id_token;
+                        var id_input = document.getElementById("google_id_token");
+                        id_input.value = id_token;
+                        document.id_token_form.submit();
+                        });
+                });
         }
       </script>
 
-      <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+      <script src="https://apis.google.com/js/platform.js?onload=initAuth" async defer></script>
 
       <form id="id_token_form" name="id_token_form" action="$flowExecutionUrl" method="post" style="display:none">
         <input id="google_id_token" name="google_id_token" type="text" value="" />
