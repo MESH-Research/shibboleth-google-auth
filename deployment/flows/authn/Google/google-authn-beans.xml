@@ -12,32 +12,31 @@
        default-init-method="initialize"
        default-destroy-method="destroy">
 
-    <!-- Configure the Google integration details here. In particular configure
-         the Google OAuth2 client ID. The secret is not necessary since the
-         Google Javascript code manages the actual Google authentication flow.
-         The Javascript code returns the signed Google Id token and then it 
-         is sent by POST to the IdP for verification. -->
+    <!-- Configure the Google integration details here including:
+         - Google OAuth2 client ID
+         - Google OAuth2 client secret
+         - Google OAuth2 URL endpoint
+         - Google OIDC token endpoint
+         -->
     <bean id="GoogleIntegration"
         class="org.mla.cbox.shibboleth.idp.authn.impl.GoogleIntegration"
-        p:oauth2ClientId="611700789407-k7vkt7qh1qu7pr4e1rs6n83vqpmp5986.apps.googleusercontent.com"
+        p:oauth2ClientId="YOUR CLIENT ID HERE"
+        p:oauth2ClientSecret="YOUR CLIENT SECRET HERE"
+        p:oauth2Url="https://accounts.google.com/o/oauth2/auth"
+        p:tokenEndpoint="https://www.googleapis.com/oauth2/v4/token"
         />
-       
-    <!-- The Google integration to use is configured with this bean. The 
-         integration is attached to the GoogleContext that is attached to
-         the authentication context used for the flow. -->
-    <bean id="ExtractGoogleIdTokenFromFormRequest"
-        class="org.mla.cbox.shibboleth.idp.authn.impl.ExtractGoogleIdTokenFromFormRequest"
+
+    <!-- You should not need to edit these bean definitions -->
+    <bean id="InitializeGoogleContext"
+        class="org.mla.cbox.shibboleth.idp.authn.impl.InitializeGoogleContext"
         scope="prototype"
         p:googleIntegration-ref="GoogleIntegration"
+        />
+
+    <bean id="ProcessRedirectFromGoogle"
+        class="org.mla.cbox.shibboleth.idp.authn.impl.ProcessRedirectFromGoogle"
+        scope="prototype"
         p:httpServletRequest-ref="shibboleth.HttpServletRequest"
         />
 
-    <!-- The validation step obtains the Google integration details, mainly
-         the Google OAuth2 client ID, from the GoogleIntegration attached
-         to the GoogleContext attached to the authentication context. -->
-    <bean id="ValidateGoogleIdToken"
-        class="org.mla.cbox.shibboleth.idp.authn.impl.ValidateGoogleIdToken"
-        scope="prototype"
-        />
-        
 </beans>

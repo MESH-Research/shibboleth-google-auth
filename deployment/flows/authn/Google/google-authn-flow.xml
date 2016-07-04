@@ -3,42 +3,46 @@
       xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow.xsd"
       parent="authn.abstract, authn/conditions">
 
-    <!-- Display the google.vm velocity template. The relying party context
-         as well as profile request context and authentication context are 
-         available to the view. More importantly the Google OAuth2 client ID
-         is available to the view since the Google Javascript requires it.
-         The client ID is that configured in the GoogleIntegration 
-         bean configuration. -->
-    <view-state id="DisplayGoogleSignInPage" view="google">
-        <on-render>
-            <evaluate expression="environment" result="viewScope.environment" />
-            <evaluate expression="opensamlProfileRequestContext" result="viewScope.profileRequestContext" />
-            <evaluate expression="opensamlProfileRequestContext.getSubcontext(T(net.shibboleth.idp.authn.context.AuthenticationContext))" result="viewScope.authenticationContext" />
-            <evaluate expression="authenticationContext.getSubcontext(T(net.shibboleth.idp.ui.context.RelyingPartyUIContext))" result="viewScope.rpUIContext" />
-            <evaluate expression="GoogleIntegration.getOauth2ClientId()" result="viewScope.clientId" />
-        </on-render>
-
-        <transition on="proceed" to="ExtractGoogleIdTokenFromFormRequest" />
-    </view-state>
-    
-    <!-- Extract the signed Google ID token that has been sent by POST
-         to the IdP. -->
-    <action-state id="ExtractGoogleIdTokenFromFormRequest">
-        <evaluate expression="ExtractGoogleIdTokenFromFormRequest" />
+    <!-- Initialize the flow with the Google integration details
+         and create an anti-forgery state token to be sent to
+         Google and verified on return. Then use an external
+         redirect view to send the browser to the Google authentication
+         page.
+         -->
+    <action-state id="InitializeGoogleContext">
+        <evaluate expression="InitializeGoogleContext" />
         <evaluate expression="'proceed'" />
 
-        <transition to="ValidateGoogleIdToken" />
+        <transition on="proceed" to="RedirectToGoogle" >
+            <evaluate expression="opensamlProfileRequestContext" result="flowScope.profileRequestContext" />
+            <evaluate expression="opensamlProfileRequestContext.getSubcontext(T(net.shibboleth.idp.authn.context.AuthenticationContext))" result="flowScope.authenticationContext" />
+            <evaluate expression="authenticationContext.getSubcontext(T(org.mla.cbox.shibboleth.idp.authn.impl.GoogleContext))" result="flowScope.googleContext" />
+            <evaluate expression="flowRequestContext.getExternalContext().getNativeRequest()" result="flowScope.request" />
+        </transition>
     </action-state>
 
-    <!-- Validate that the Google Id token is properly signed and 
-         targeted at the correct Google OAuth2 client ID. -->
-    <action-state id="ValidateGoogleIdToken" >
-        <evaluate expression="ValidateGoogleIdToken" />
+    <!-- Redirect the browser to the Google authentication page using a OAuth2 URL computed
+         using the Google integration details stored in the GoogleContext along with the
+         Spring WebFlow flowExecutionUrl. The query string includes the necessary Google
+         integration details, the anti-forgery state token, and redirect URI to which the
+         browser will be sent after Google authentication, and the necessary syntax to tell
+         Spring WebFlow to transition to the next flow state.
+         -->
+    <view-state id="RedirectToGoogle" view="externalRedirect:#{googleContext.googleOauth2Url(request,flowExecutionUrl)}">
+        <transition on="proceed" to="ProcessRedirectFromGoogle" />
+    </view-state>
+
+    <!-- Process the return from Google by consuming the one-time authorization code
+         and then exchanging it using the client ID and secret for an ID token with
+         claims about the user.
+         -->
+    <action-state id="ProcessRedirectFromGoogle">
+        <evaluate expression="ProcessRedirectFromGoogle" />
         <evaluate expression="'proceed'" />
 
         <transition on="proceed" to="proceed" />
     </action-state>
-    
+
     <bean-import resource="google-authn-beans.xml" />
 
 </flow>

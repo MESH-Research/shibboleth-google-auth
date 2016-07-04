@@ -1,18 +1,12 @@
 package org.mla.cbox.shibboleth.idp.authn.impl;
 
-import java.io.IOException;
-
 import javax.annotation.Nonnull;
 
 import net.shibboleth.idp.authn.principal.CloneablePrincipal;
 import net.shibboleth.utilities.java.support.annotation.constraint.NotEmpty;
 
 import com.google.common.base.MoreObjects;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.gson.Gson;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Principal based on a Google Id token */
 public class GoogleIdPrincipal implements CloneablePrincipal {
@@ -37,10 +31,10 @@ public class GoogleIdPrincipal implements CloneablePrincipal {
      * 
      * @param googleIdToken Google ID token
      */
-    public GoogleIdPrincipal(@Nonnull @NotEmpty final GoogleIdToken token) {
-        this.subClaim = token.getPayload().getSubject();
-        this.emailClaim = token.getPayload().getEmail();
-        this.nameClaim = (String) token.getPayload().get("name");
+    public GoogleIdPrincipal(@Nonnull @NotEmpty final OidcIdToken token) {
+        this.subClaim = token.getSub();
+        this.emailClaim = token.getEmail();
+        this.nameClaim = token.getName();
     }
     
     /**
