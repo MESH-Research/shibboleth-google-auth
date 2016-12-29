@@ -143,6 +143,7 @@ public class GoogleContext extends BaseContext {
     			 .append("&response_type=code")
                  .append("&scope=openid%20email%20profile")
                  .append("&redirect_uri=").append(this.getEncodedRedirectUri(request.getScheme(),request.getServerName(), flowExecutionUrl))
+                 .append("&prompt=select_account")
                  .append("&state=").append(this.getAntiForgeryStateToken());
     			 
          log.debug("{} computed Google OAuth2 Url is {}", this.logPrefix, oauth2Url.toString());
