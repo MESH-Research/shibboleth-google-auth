@@ -1,3 +1,17 @@
+/*
+* Copyright (C) 2017 Modern Language Association
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing, software distributed under
+* the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied. See the License for the specific language governing
+* permissions and limitations under the License.
+*/
+
 package org.mla.cbox.shibboleth.idp.authn.impl;
 
 import java.math.BigInteger;
@@ -22,26 +36,26 @@ public class GoogleContext extends BaseContext {
     @Nullable private String antiForgeryStateToken = null;
     
     /** Google integration details */
-	@Nullable private GoogleIntegration googleIntegration = null;
+    @Nullable private GoogleIntegration googleIntegration = null;
     
     /** The Google Id token string */
     @Nullable private String googleIdTokenString = null;
     
-	/** The OIDC ID token */
-	@Nullable private OidcIdToken IdToken = null;
+    /** The OIDC ID token */
+    @Nullable private OidcIdToken IdToken = null;
     
-	/** The OAuth2 redirect_uri */
-	@Nullable private String redirectUri = null;
+    /** The OAuth2 redirect_uri */
+    @Nullable private String redirectUri = null;
     
-	/** Class logger */
+    /** Class logger */
     @Nonnull private final Logger log = LoggerFactory.getLogger(GoogleContext.class);
     
     /** Log prefix */
     @Nonnull private final String logPrefix = getClass().getSimpleName() + ":";
     
-	/** Constructor */
+    /** Constructor */
     public GoogleContext() {
-    	
+        
     }
     
     /**
@@ -50,7 +64,7 @@ public class GoogleContext extends BaseContext {
      * @return token as String
      */
     @Nullable public String getAntiForgeryStateToken() {
-    	return this.antiForgeryStateToken;
+        return this.antiForgeryStateToken;
     }
     
      /**
@@ -61,13 +75,13 @@ public class GoogleContext extends BaseContext {
      @Nullable public String getEncodedRedirectUri() {
          String encodedRedirectUri = null;
          try {
-        	 encodedRedirectUri = URLEncoder.encode(this.redirectUri, "UTF-8");
+             encodedRedirectUri = URLEncoder.encode(this.redirectUri, "UTF-8");
          } catch (UnsupportedEncodingException e) {
-        	 log.warn("{} Caught UnsupportedEncodingException when attempting to encode redirect_uri {} : {}", logPrefix, this.redirectUri, e.getMessage());
+             log.warn("{} Caught UnsupportedEncodingException when attempting to encode redirect_uri {} : {}", logPrefix, this.redirectUri, e.getMessage());
              encodedRedirectUri = this.redirectUri;
          }
          
-    	 return encodedRedirectUri;
+         return encodedRedirectUri;
      }
      
      @Nullable public String getEncodedRedirectUri(String scheme, String serverName, String flowExecutionUrl) {
@@ -81,16 +95,16 @@ public class GoogleContext extends BaseContext {
      * @return the Google integration object
      */
     @Nullable public GoogleIntegration getGoogleIntegration() {
-    	return this.googleIntegration;
+        return this.googleIntegration;
     }
-	
-	/**
-	 * Get the ID token string to be validated
-	 * 
-	 * @return the ID token string to be validated
-	 */
+    
+    /**
+     * Get the ID token string to be validated
+     * 
+     * @return the ID token string to be validated
+     */
     @Nullable public String getGoogleIdTokenString() {
-    	return this.googleIdTokenString;
+        return this.googleIdTokenString;
     }
     
     /**
@@ -99,7 +113,7 @@ public class GoogleContext extends BaseContext {
      * @return the ID token
      */
      @Nullable public OidcIdToken getIdToken() {
-    	 return this.IdToken;
+         return this.IdToken;
      }
      
      /**
@@ -108,7 +122,7 @@ public class GoogleContext extends BaseContext {
       * @return redirect URI as String
       */
      @Nullable public String getRedirectUri() {
-    	 return this.redirectUri;
+         return this.redirectUri;
      }
      
      /**
@@ -122,14 +136,14 @@ public class GoogleContext extends BaseContext {
       */
      @Nullable public String getRedirectUri(String scheme, String serverName, String flowExecutionUrl) {
          StringBuilder redirectUriBuilder = new StringBuilder().append(scheme)
-        		 .append("://")
-        		 .append(serverName)
-        		 .append(flowExecutionUrl)
-        		 .append("&_eventId=proceed");
+                 .append("://")
+                 .append(serverName)
+                 .append(flowExecutionUrl)
+                 .append("&_eventId=proceed");
          
          this.redirectUri = redirectUriBuilder.toString();
          
-    	 return this.redirectUri;
+         return this.redirectUri;
      }
      
      /**
@@ -138,17 +152,17 @@ public class GoogleContext extends BaseContext {
       * @return the URL
       */
      public String googleOauth2Url(HttpServletRequest request, String flowExecutionUrl) {
-    	 StringBuilder oauth2Url = new StringBuilder().append(this.googleIntegration.getOauth2Url())
-    			 .append("?client_id=").append(this.googleIntegration.getOauth2ClientId())
-    			 .append("&response_type=code")
+         StringBuilder oauth2Url = new StringBuilder().append(this.googleIntegration.getOauth2Url())
+                 .append("?client_id=").append(this.googleIntegration.getOauth2ClientId())
+                 .append("&response_type=code")
                  .append("&scope=openid%20email%20profile")
                  .append("&redirect_uri=").append(this.getEncodedRedirectUri(request.getScheme(),request.getServerName(), flowExecutionUrl))
                  .append("&prompt=select_account")
                  .append("&state=").append(this.getAntiForgeryStateToken());
-    			 
+                 
          log.debug("{} computed Google OAuth2 Url is {}", this.logPrefix, oauth2Url.toString());
          
-    	 return oauth2Url.toString();
+         return oauth2Url.toString();
      }
      
      /**
@@ -167,7 +181,7 @@ public class GoogleContext extends BaseContext {
      * @return this context
      */
     public GoogleContext setGoogleIdTokenString(@Nullable final String tokenString) {
-    	this.googleIdTokenString = tokenString;
+        this.googleIdTokenString = tokenString;
         return this;
     }
     
@@ -179,8 +193,8 @@ public class GoogleContext extends BaseContext {
      * @return this context
      */
     public GoogleContext setIdToken(@Nullable final OidcIdToken token) {
-    	this.IdToken = token;
-    	return this;
+        this.IdToken = token;
+        return this;
     }
     
     /**
@@ -191,7 +205,7 @@ public class GoogleContext extends BaseContext {
      * @return this context
      */
     public GoogleContext setGoogleIntegration(@Nullable final GoogleIntegration googleIntegration) {
-    	this.googleIntegration = googleIntegration;
+        this.googleIntegration = googleIntegration;
         return this;
     }
 }

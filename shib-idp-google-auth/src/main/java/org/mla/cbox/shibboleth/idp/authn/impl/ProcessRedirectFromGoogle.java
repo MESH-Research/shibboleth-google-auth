@@ -1,3 +1,17 @@
+/*
+* Copyright (C) 2017 Modern Language Association
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing, software distributed under
+* the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied. See the License for the specific language governing
+* permissions and limitations under the License.
+*/
+
 package org.mla.cbox.shibboleth.idp.authn.impl;
 
 import java.io.IOException;
@@ -62,21 +76,21 @@ public class ProcessRedirectFromGoogle extends AbstractValidationAction {
     
     /** Represents token response from Google */
     public static class TokenResponse extends GenericJson {
-    	@Key
-    	private String access_token;
-    	
-    	@Key
-    	private String token_type;
+        @Key
+        private String access_token;
         
-    	@Key
-    	private Integer expires_in;
-    	
-    	@Key
-    	private String id_token;
-    	
-    	public String getIdTokenString () {
-    		return this.id_token;
-    	}
+        @Key
+        private String token_type;
+        
+        @Key
+        private Integer expires_in;
+        
+        @Key
+        private String id_token;
+        
+        public String getIdTokenString () {
+            return this.id_token;
+        }
     }
     
     /** {@inheritDoc} */
@@ -147,13 +161,13 @@ public class ProcessRedirectFromGoogle extends AbstractValidationAction {
         
         /* Query Google token endpoint using the one-time authorization code for an ID token */
         HttpRequestFactory requestFactory = HTTP_TRANSPORT.createRequestFactory(
-        		new HttpRequestInitializer() {
+                new HttpRequestInitializer() {
                     @Override
                     public void initialize(HttpRequest request) {
                         /* Set default parser as a JSON parser to make casting to class instance easier */
-                    	request.setParser(new JsonObjectParser(JSON_FACTORY));
+                        request.setParser(new JsonObjectParser(JSON_FACTORY));
                     }
-        		});
+                });
         
         GenericUrl tokenEndpoint = new GenericUrl(googleContext.getGoogleIntegration().getTokenEndpoint());
         
@@ -169,34 +183,34 @@ public class ProcessRedirectFromGoogle extends AbstractValidationAction {
         log.debug("{} computed token endpoint payload is {}", getLogPrefix(), httpContent.toString());
         
         try {
-        	HttpRequest request = requestFactory.buildPostRequest(tokenEndpoint, httpContent);
+            HttpRequest request = requestFactory.buildPostRequest(tokenEndpoint, httpContent);
             
             log.debug("{} executing POST to Google token endpoint", getLogPrefix());
-        	HttpResponse response = request.execute();
+            HttpResponse response = request.execute();
             log.debug("{} done executing POST to Google token endpoint", getLogPrefix());
             
             /* Cast the response to a TokenResponse class instance */
-        	TokenResponse tokenResponse = response.parseAs(TokenResponse.class);
+            TokenResponse tokenResponse = response.parseAs(TokenResponse.class);
             log.debug("{} received token response {}", getLogPrefix(), tokenResponse.toPrettyString());
             
             /* Close the HTTP connection */
-        	response.disconnect();
+            response.disconnect();
             
             /* We do not validate the ID token since we just received it over a secure channel
              * and we are not going to pass it around. We just grab the payload
              * and pad it as necessary so we can then decode the base64 encoding.
              */
-        	String idTokenPayloadString = tokenResponse.getIdTokenString().split("\\.")[1];
-        	String idTokenPayloadStringPadded = Strings.padEnd(idTokenPayloadString, idTokenPayloadString.length() + (4 - (idTokenPayloadString.length() % 4)), '=');
-        	String idTokenPayloadStringDecoded = new String(DatatypeConverter.parseBase64Binary(idTokenPayloadStringPadded));
+            String idTokenPayloadString = tokenResponse.getIdTokenString().split("\\.")[1];
+            String idTokenPayloadStringPadded = Strings.padEnd(idTokenPayloadString, idTokenPayloadString.length() + (4 - (idTokenPayloadString.length() % 4)), '=');
+            String idTokenPayloadStringDecoded = new String(DatatypeConverter.parseBase64Binary(idTokenPayloadStringPadded));
         
             /* Cast the ID token as instance of OidcIdToken class */
-        	JsonObjectParser jsonParser = new JsonObjectParser(JSON_FACTORY);
-        	OidcIdToken idToken = jsonParser.parseAndClose(new StringReader(idTokenPayloadStringDecoded), OidcIdToken.class);
+            JsonObjectParser jsonParser = new JsonObjectParser(JSON_FACTORY);
+            OidcIdToken idToken = jsonParser.parseAndClose(new StringReader(idTokenPayloadStringDecoded), OidcIdToken.class);
             log.debug("{} id token is {}", getLogPrefix(), idToken.toPrettyString());
         
             /* Attach the ID token to the GoogleContext */
-        	googleContext.setIdToken(idToken);
+            googleContext.setIdToken(idToken);
         } catch (IOException e) {
             log.warn("{} exception exchanging authorization code for id token : {}", getLogPrefix(), e.getMessage());
             ActionSupport.buildEvent(profileRequestContext, AuthnEventIds.NO_CREDENTIALS);

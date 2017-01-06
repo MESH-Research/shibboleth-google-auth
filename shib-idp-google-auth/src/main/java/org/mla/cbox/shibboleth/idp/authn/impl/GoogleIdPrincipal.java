@@ -1,3 +1,17 @@
+/*
+* Copyright (C) 2017 Modern Language Association
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing, software distributed under
+* the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied. See the License for the specific language governing
+* permissions and limitations under the License.
+*/
+
 package org.mla.cbox.shibboleth.idp.authn.impl;
 
 import javax.annotation.Nonnull;
@@ -11,9 +25,9 @@ import com.google.gson.Gson;
 /** Principal based on a Google Id token */
 public class GoogleIdPrincipal implements CloneablePrincipal {
     /** Sub claim from ID token asserted by Google */
-	private String subClaim;
+    private String subClaim;
     
-	/** Email claim from ID token asserted by Google, can be null if not asserted */
+    /** Email claim from ID token asserted by Google, can be null if not asserted */
     private String emailClaim;
     
     /** Name claim from ID token asserted by Google, Can be null if not asserted */
@@ -23,7 +37,7 @@ public class GoogleIdPrincipal implements CloneablePrincipal {
      * Constructor
      */
     public GoogleIdPrincipal() {
-    	
+        
     }
     
     /**
@@ -96,8 +110,8 @@ public class GoogleIdPrincipal implements CloneablePrincipal {
     
     /** Serialize to JSON */
     public String serialize() {
-    	Gson gson = new Gson();
-    	return gson.toJson(this);
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
     
     /** {@inheritDoc} */
